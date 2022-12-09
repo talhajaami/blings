@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import LazyMintingAddress from '../contract-abi/LazyMinting-address.json';
 import toast, { Toaster } from 'react-hot-toast';
 import { FormGroup, Input, InputGroup } from 'reactstrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { create } from 'ipfs-http-client'
 import { Buffer } from 'buffer'
 import axios from 'axios'
@@ -15,6 +15,16 @@ const ModuleFormik = () => {
   const [desc, setDesc] = useState();
   const [image, setImage] = useState('')
   const [fileType, setFileType] = useState()
+
+  useEffect(() => {
+    walletConnect()
+  }, []);
+
+  const walletConnect = async () => {
+    await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    })
+  }
 
   const projectId = '2IagCV6gVLiAigox0s2YpCbqNIu';   // <---------- your Infura Project ID
   const projectSecret = '932b70d6f0bca4b641e1df2a76c37d3f';  // <---------- your Infura Secret
@@ -52,6 +62,10 @@ const ModuleFormik = () => {
     await window.ethereum.send('eth_requestAccounts')
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     const signer = provider.getSigner()
+    const { chainId } = await provider.getNetwork()
+    if (chainId != 5) {
+      toast.error('Change to Goerli Network');
+    }
     const address = await signer.getAddress()
     let search = window.location.search;
     let params = new URLSearchParams(search);

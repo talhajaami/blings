@@ -16,7 +16,6 @@ const ModuleFormik = () => {
   const [desc, setDesc] = useState();
   const [image, setImage] = useState('')
   const [fileType, setFileType] = useState()
-  const params = useParams()
 
   const projectId = '2IagCV6gVLiAigox0s2YpCbqNIu';   // <---------- your Infura Project ID
   const projectSecret = '932b70d6f0bca4b641e1df2a76c37d3f';  // <---------- your Infura Secret
@@ -55,14 +54,15 @@ const ModuleFormik = () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     const signer = provider.getSigner()
     const address = await signer.getAddress()
-    let tokenUrl = params.token
-    let tokens = tokenUrl?.toString().split("=")[1]
-    console.log(tokens)
+    let search = window.location.search;
+    let params = new URLSearchParams(search);
+    let token = params.get('token');
+    console.log(token)
 
-    if (!image || !title || !desc || !tokens) return
+    if (!image || !title || !desc || !token) return
     try {
       let result = await client.add(
-        JSON.stringify({ image, title, desc, tokens })
+        JSON.stringify({ image, title, desc, token })
       )
       const signingDomain = async () => {
         const domain = {
@@ -92,14 +92,14 @@ const ModuleFormik = () => {
         title: title,
         description: desc,
         uri: uri,
-        userId: tokens,
+        userId: token,
       }
 
       const signature = await signer._signTypedData(domain, types, voucher).catch(() => {
         toast.error('Transaction Fail');
       })
 
-      const response = await axios.post(`https://import.blingnft.art/public/api/v3/mint?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&id=1&mime=${fileType}&tokenId=${tokens}&tokenAddress=${address}&media=${image}&title=${title}&signature=${signature}&details=${desc}&metadata_url=${uri}`).then(() => {
+      const response = await axios.post(`https://import.blingnft.art/public/api/v3/mint?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&id=1&mime=${fileType}&tokenId=${token}&tokenAddress=${address}&media=${image}&title=${title}&signature=${signature}&details=${desc}&metadata_url=${uri}`).then(() => {
         toast.success('NFT Minted Successfully');
       }).catch(() => {
         toast.error('Mint Fail');

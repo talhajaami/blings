@@ -5,7 +5,6 @@ import LazyMintingAddress from '../contract-abi/LazyMinting-address.json';
 import toast, { Toaster } from 'react-hot-toast';
 import { FormGroup, Input, InputGroup } from 'reactstrap';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom'
 import { create } from 'ipfs-http-client'
 import { Buffer } from 'buffer'
 import axios from 'axios'

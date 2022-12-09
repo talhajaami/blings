@@ -17,7 +17,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route
-                path='/token'
+                path='/'
                 element={<Mint />}
               />
             </Routes>

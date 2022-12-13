@@ -55,8 +55,8 @@ const ModuleFormik = () => {
   }
 
 
-  const lazyMint = async () => {  
-    
+  const lazyMint = async () => {
+
     if (window.ethereum) {
       // Get provider from Metamask
       const provider: any = new ethers.providers.Web3Provider(window.ethereum);
@@ -65,39 +65,10 @@ const ModuleFormik = () => {
       if ((await network).chainId !== 5) {
         toast.error('Please connect to Ethereum Mainnet');
       } else {
-        const signerAddress = provider.getSigner();
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts',
         });
-        console.log(accounts, signerAddress);
-      }
-    } else {
-      window.open('https://metamask.io/download/', '_blank');
-    }
-  
-
-    if (window.ethereum) {
-      handleEthereum();
-    } else {
-      window.addEventListener('ethereum#initialized', handleEthereum, {
-        once: true,
-      });
-
-      // If the event is not dispatched by the end of the timeout,
-      // the user probably doesn't have MetaMask installed.
-      setTimeout(handleEthereum, 3000); // 3 seconds
-    }
-
-
-
-    async function handleEthereum() {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
-        const { chainId } = await provider.getNetwork()
-        if (chainId !== 5) {
-          toast.error('Change to Goerli Network');
-        }
         const address = await signer.getAddress()
         let search = window.location.search;
         let params = new URLSearchParams(search);
@@ -153,19 +124,10 @@ const ModuleFormik = () => {
         } catch (error) {
           console.log('ipfs uri upload error: ', error)
         }
-
-      } else {
-        toast.error('Install Metamask Extension')
       }
+    } else {
+      toast.error('Install Metamask')
     }
-    if (!window.ethereum) {
-      toast.error('Install Metamask Extension')
-    }
-    await window.ethereum.send('eth_requestAccounts')
-
-
-
-
   };
 
   return (

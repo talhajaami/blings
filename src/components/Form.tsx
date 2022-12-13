@@ -55,116 +55,85 @@ const ModuleFormik = () => {
   }
 
 
-  const lazyMint = async () => {  
-    
-    if (window.ethereum) {
+  const lazyMint = async () => {
+    const {ethereum} = window
+    if (ethereum) {
       // Get provider from Metamask
       const provider: any = new ethers.providers.Web3Provider(window.ethereum);
       // Set signer
       const network = provider.getNetwork();
-      if ((await network).chainId !== 5) {
+      if ((await network).chainId !== 1) {
         toast.error('Please connect to Ethereum Mainnet');
-      } else {
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        });
-        console.log(accounts)
-        const signer = provider.getSigner()
-        const address = await signer.getAddress()
-        let search = window.location.search;
-        let params = new URLSearchParams(search);
-        let token = params.get('token');
-        console.log(token)
-
-        if (!image || !title || !desc || !token) return
-        try {
-          let result = await client.add(
-            JSON.stringify({ image, title, desc, token })
-          )
-          const signingDomain = async () => {
-            const domain = {
-              name: 'Bling-NFT',
-              version: '1',
-              verifyingContract: LazyMintingAddress.address,
-              chainId: 5, // put chain id here, on which chain you are going to deploy
-            }
-            return domain
-          }
-          const domain = await signingDomain()
-
-          const types = {
-            NFTVoucher: [
-              { name: 'signerAddress', type: 'address' },
-              { name: 'title', type: 'string' },
-              { name: 'description', type: 'string' },
-              { name: 'uri', type: 'string' },
-              { name: 'userId', type: 'string' },
-            ],
-          }
-
-          let uri = `https://blingnft.infura-ipfs.io/ipfs/${result.path}`
-
-          const voucher = {
-            signerAddress: address,
-            title: title,
-            description: desc,
-            uri: uri,
-            userId: token,
-          }
-
-          const signature = await signer._signTypedData(domain, types, voucher).catch(() => {
-            toast.error('Transaction Fail');
-          })
-
-          const response = await axios.post(`https://import.blingnft.art/public/api/v3/mint?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&id=1&mime=${fileType}&tokenId=${token}&tokenAddress=${address}&media=${image}&title=${title}&signature=${signature}&details=${desc}&metadata_url=${uri}`).then(() => {
-            toast.success('NFT Minted Successfully');
-          }).catch(() => {
-            toast.error('Mint Fail');
-          })
-          console.log(response)
-        } catch (error) {
-          console.log('ipfs uri upload error: ', error)
-        }
-      }
+      } 
     } else {
       window.open('https://metamask.io/download/', '_blank');
     }
-  
-
-    if (window.ethereum) {
-      handleEthereum();
-    } else {
-      window.addEventListener('ethereum#initialized', handleEthereum, {
-        once: true,
-      });
-
-      // If the event is not dispatched by the end of the timeout,
-      // the user probably doesn't have MetaMask installed.
-      setTimeout(handleEthereum, 3000); // 3 seconds
-    }
-
-
-
-    async function handleEthereum() {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const { chainId } = await provider.getNetwork()
-        if (chainId !== 5) {
-          toast.error('Change to Goerli Network');
-        }
-        
-
-      } else {
-        toast.error('Install Metamask Extension')
-      }
-    }
+    
     if (!window.ethereum) {
       toast.error('Install Metamask Extension')
     }
     await window.ethereum.send('eth_requestAccounts')
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    const signer = provider.getSigner()
+    const { chainId } = await provider.getNetwork()
+    if (chainId != 5) {
+      toast.error('Change to Goerli Network');
+    }
+    const address = await signer.getAddress()
+    let search = window.location.search;
+    let params = new URLSearchParams(search);
+    let token = params.get('token');
+    console.log(token)
 
+    if (!image || !title || !desc || !token) return
+    try {
+      let result = await client.add(
+        JSON.stringify({ image, title, desc, token })
+      )
+      const signingDomain = async () => {
+        const domain = {
+          name: 'Bling-NFT',
+          version: '1',
+          verifyingContract: LazyMintingAddress.address,
+          chainId: 5, // put chain id here, on which chain you are going to deploy
+        }
+        return domain
+      }
+      const domain = await signingDomain()
 
+      const types = {
+        NFTVoucher: [
+          { name: 'signerAddress', type: 'address' },
+          { name: 'title', type: 'string' },
+          { name: 'description', type: 'string' },
+          { name: 'uri', type: 'string' },
+          { name: 'userId', type: 'string' },
+        ],
+      }
 
+      let uri = `https://blingnft.infura-ipfs.io/ipfs/${result.path}`
+
+      const voucher = {
+        signerAddress: address,
+        title: title,
+        description: desc,
+        uri: uri,
+        userId: token,
+      }
+
+      const signature = await signer._signTypedData(domain, types, voucher).catch(() => {
+        toast.error('Transaction Fail');
+      })
+
+      const response = await axios.post(`https://import.blingnft.art/public/api/v3/mint?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&id=1&mime=${fileType}&tokenId=${token}&tokenAddress=${address}&media=${image}&title=${title}&signature=${signature}&details=${desc}&metadata_url=${uri}`).then(() => {
+        toast.success('NFT Minted Successfully');
+      }).catch(() => {
+        toast.error('Mint Fail');
+      })
+      console.log(response)
+    } catch (error) {
+      console.log('ipfs uri upload error: ', error)
+    }
 
   };
 

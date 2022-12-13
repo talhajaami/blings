@@ -70,8 +70,7 @@ const ModuleFormik = () => {
     }
 
     async function handleEthereum() {
-      const { ethereum } = window;
-      if (ethereum && ethereum.isMetaMask) {
+      if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
         const { chainId } = await provider.getNetwork()

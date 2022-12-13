@@ -74,7 +74,7 @@ const ModuleFormik = () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner()
         const { chainId } = await provider.getNetwork()
-        if (chainId != 5) {
+        if (chainId !== 5) {
           toast.error('Change to Goerli Network');
         }
         const address = await signer.getAddress()

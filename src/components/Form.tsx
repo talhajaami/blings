@@ -55,7 +55,26 @@ const ModuleFormik = () => {
   }
 
 
-  const lazyMint = async () => {
+  const lazyMint = async () => {  
+    
+    if (window.ethereum) {
+      // Get provider from Metamask
+      const provider: any = new ethers.providers.Web3Provider(window.ethereum);
+      // Set signer
+      const network = provider.getNetwork();
+      if ((await network).chainId !== 5) {
+        toast.error('Please connect to Ethereum Mainnet');
+      } else {
+        const signerAddress = provider.getSigner();
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+        console.log(accounts);
+      }
+    } else {
+      window.open('https://metamask.io/download/', '_blank');
+    }
+  
 
     if (window.ethereum) {
       handleEthereum();
@@ -68,6 +87,8 @@ const ModuleFormik = () => {
       // the user probably doesn't have MetaMask installed.
       setTimeout(handleEthereum, 3000); // 3 seconds
     }
+
+
 
     async function handleEthereum() {
       if (window.ethereum) {

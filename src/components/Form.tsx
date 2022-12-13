@@ -68,6 +68,7 @@ const ModuleFormik = () => {
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts',
         });
+        console.log(accounts)
         const signer = provider.getSigner()
         const address = await signer.getAddress()
         let search = window.location.search;

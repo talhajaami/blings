@@ -65,9 +65,6 @@ const ModuleFormik = () => {
       if ((await network).chainId !== 5) {
         toast.error('Please connect to Ethereum Mainnet');
       } else {
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        });
         const signer = provider.getSigner()
         const address = await signer.getAddress()
         let search = window.location.search;
